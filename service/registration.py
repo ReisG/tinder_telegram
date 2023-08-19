@@ -71,7 +71,10 @@ async def user_registration_webapp_prosessing(message : types.Message):
                 inn
                 phone_number
             legal:
-                org_name - 
+                org_name - наименование организации
+                ogrn
+                address
+                inn
     """
 
     if isRegistered(message.from_user.id, myDatabase):
@@ -79,4 +82,61 @@ async def user_registration_webapp_prosessing(message : types.Message):
         return
     
     data = json.loads(message.web_app_data.data)
+
+    # checking if data is empty
+    # we consider that every sent field is not empty
+    for field in data:
+        if data[field] == "":
+            await message.answer("Поля не должны быть пустыми")
+            return
+
+    # creating user record
+    # saying its type
+    modifyQuery("""INSERT INTO user (tg_id, type) VALUES (%s, (SELECT id FROM usertype WHERE type=%a));""",
+                [message.from_user.id, data["user_type"]], myDatabase)
+
+    if data["user_type"] == "phisical":
+        # physical is registering
+        
+        # validating data
+        # and dangerous symbols must be destroied
+
+        data["first_name"] = html.escape(data["first_name"])
+        data["last_name"] = html.escape(data["last_name"])
+        data["fathers_name"] = html.escape(data["fathers_name"])
+        data["passport_series"] = int(data["port_series"])
+        data["passport_number"] = int(data["passport_number"])
+        data["address"] = html.escape(data["address"])
+        data["inn"] = int(data["inn"])
+        data["phone_number"] = html.escape(data["phone_number"])
+
+        # sending data to database    
+        modifyQuery("""INSERT INTO phys_info(user_id, first_name, last_name, fathers_name,
+                                                passport_series, passport_number, address, 
+                                                inn, phone_number)
+                                    VALUES ((SELECT id FROM user WHERE tg_id=%s), %s, %s, %s,
+                                            %s, %s, %s,
+                                            %s, %s);""",
+                        [message.from_user.id, data["first_name"], data["last_name"], data["fathers_name"],
+                         data["passport_series"], data["passport_number"], data["address"],
+                         data["inn"], data["phone_number"]], myDatabase)
+        
+    elif data["user_type"] == "legal":
+        # legal is registering
+
+        # validating data
+        data["org_name"] = html.escape(data["org_name"])
+        data["ogrn"] = int(data["ogrn"])
+        data["address"] = html.escape(data["address"])
+        data["inn"] = int(data["inn"])
+        data["phone_number"] = html.escape(data["phone_number"])
+
+        modifyQuery("""INSERT INTO urid_info(user_id, org_name, ogrn, address, inn, phone_number)
+                        VALUES ((SELECT id WHERE tg_id=%s), %s, %s, %s, %s, %s);""",
+                        [message.from_user.id, data["org_name"], data["ogrn"], data["address"], data["inn"], data["phone_number"]],
+                        myDatabase)
+    else:
+        # error
+        await message.answer("Данные повреждены. Ошибка с определением лица")
+        return
     
