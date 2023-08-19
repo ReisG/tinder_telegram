@@ -1,0 +1,5 @@
+# Excluding API KEYS
+/config.py
+
+# Excluding __pycache__
+__pycache__
