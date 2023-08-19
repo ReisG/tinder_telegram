@@ -12,6 +12,7 @@ from module.user_must_register import user_must_register
 # @user_must_register(myDatabase)
 async def help_command(message : types.Message):
     instractions = """Команды:
-        /registration - зарегистрироваться
+        /register - зарегистрироваться
+        /createblock - создать энергитический блок
         /cancel - отменить выполняемое действие"""
     await message.answer(instractions)
