@@ -12,12 +12,6 @@ from module.user_must_register import user_must_register
 # @user_must_register(myDatabase)
 async def help_command(message : types.Message):
     instractions = """Команды:
-        /changetimezone - изменить часовой пояс
-        /changecity - изменить город
-        /getevents - показать события
-        /participatedevents - показать события, на которые вы зарегистрировались
-        /createevent - создать событие
-        /showmyevents - показать созданные вами события (с возможностью редактирования)
-        /getuserslist - имена пользователей
+        /registration - зарегистрироваться
         /cancel - отменить выполняемое действие"""
     await message.answer(instractions)
