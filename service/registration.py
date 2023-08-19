@@ -16,6 +16,7 @@ from module.Database import myDatabase
 from module.user_must_register import isRegistered
 from module.db_query_maker import selectQuery, modifyQuery
 
+import json
 import html
 import urllib.parse
 
@@ -48,3 +49,34 @@ async def register_command(message : types.Message):
         web_app=types.WebAppInfo(url=config.USER_REGISTRATION_WEBAPP)
     ))
     await message.answer("Заполните форму для регистрации в приложении", reply_markup=keyboard)
+
+
+@dp.message_handler(lambda message: json.loads(message.web_app_data.data)["web_app_name"] == "user_registration", 
+                    content_types=types.ContentType.WEB_APP_DATA)
+async def user_registration_webapp_prosessing(message : types.Message):
+    """
+        Registration user webapp handler
+        !!!USER MUST NOT BE REGISTERED ALREADY!!!
+        !!!DATA MUST BE VALID!!!
+        MUST INCLUDE:
+            web_app_name - id of this method
+            user_type - тип пользователя (phisical or legal)
+            physical:
+                first_name
+                last_name
+                fathers_name
+                passport_series
+                passport_number
+                address
+                inn
+                phone_number
+            legal:
+                org_name - 
+    """
+
+    if isRegistered(message.from_user.id, myDatabase):
+        await message.answer("Вы уже зарегистрированы в системе")
+        return
+    
+    data = json.loads(message.web_app_data.data)
+    
