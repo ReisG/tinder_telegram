@@ -110,10 +110,10 @@ async def create_block_webapp_prosessing(message : types.Message):
 
 
     # loading all units to just created block
-    record_template = f"({ ', '.join('%s') })"
+    record_template = f"({ ', '.join(['%s' for _ in range(9)]) })"
     modifyQuery(f"""INSERT INTO equipmentunit(block_id, unit_type, unit_name, cerficate, 
                             gen_power, battery_capacity, installation_date, 
-                            service_life, device_status) VALUES { ', '.join(record_template) };""",
+                            service_life, device_status) VALUES { ', '.join( [record_template for i in range(len(data["units"]))] ) };""",
                     data_to_line(data["units"]),
                     myDatabase)
     
