@@ -34,3 +34,19 @@ async def make_service_request_command(message : types.Message):
     )) 
  
     await message.answer("Сформируйте заявку на предоставление услуги", reply_markup=keyboard)
+
+
+@dp.message_handler(lambda message: json.loads(message.web_app_data.data)["web_app_name"] == "make_service_request", 
+                    content_types=types.ContentType.WEB_APP_DATA)
+# @user_must_register(myDatabase)
+async def make_service_request_webapp_handler(message : types.Message):
+    """
+        This module register user's request to provide chosen service
+        USER MUST BE REGISTERED
+        MUST INCLUDE:
+            web_app_name - id of this method
+            block_id - block id that request belong to
+            service - name of service user want to provide
+            expire_date - date when user stops provide chosen service
+    """
+    pass
