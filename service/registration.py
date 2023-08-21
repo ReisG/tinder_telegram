@@ -140,3 +140,5 @@ async def user_registration_webapp_prosessing(message : types.Message):
         await message.answer("Данные повреждены. Ошибка с определением лица")
         return
     
+    await message.answer("Вы успешно зарегистрированы в системе", reply_markup=types.ReplyKeyboardRemove())
+    
