@@ -121,7 +121,7 @@ async def user_registration_webapp_prosessing(message : types.Message):
                          data["passport_series"], data["passport_number"], data["address"],
                          data["inn"], data["phone_number"]], myDatabase)
         
-    elif data["user_type"] == "legal":
+    elif data["user_type"] == "urid":
         # legal is registering
 
         # validating data
