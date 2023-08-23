@@ -90,7 +90,7 @@ async def user_registration_webapp_prosessing(message : types.Message):
             await message.answer("Поля не должны быть пустыми")
             return
 
-    if data["user_type"] == "phisical":
+    if data["user_type"] == "phis":
         # physical is registering
         
         # validating data
