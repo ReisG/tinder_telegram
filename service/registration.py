@@ -132,15 +132,21 @@ async def user_registration_webapp_prosessing(message : types.Message):
         data["ogrn"] = int(data["ogrn"])
         data["address"] = html.escape(data["address"])
         data["inn"] = int(data["inn"])
-        data["phone_number"] = html.escape(data["phone_number"])
+        data["phone_number"] = "+73422333424" # html.escape(data["phone_number"])
 
         modifyQuery("""/*creating user record and saying its type*/
                         INSERT INTO user (tg_id, type) VALUES (%s, (SELECT id FROM usertype WHERE type=%s));
                         /*writing data that are required to current user type*/
                         INSERT INTO urid_info(user_id, name, ogrn, address, inn, phone_number)
                         VALUES ((SELECT id WHERE tg_id=%s), %s, %s, %s, %s, %s);""",
-                        [message.from_user.id, data["name"], data["ogrn"], data["address"], data["inn"], data["phone_number"]],
-                        myDatabase)
+                        [
+                            # creating user's instance
+                            message.from_user.id, data["user_type"],
+                            # writing data that are required to current user's type
+                            message.from_user.id, data["name"], 
+                            data["ogrn"], data["address"], 
+                            data["inn"], data["phone_number"]
+                        ], myDatabase)
     else:
         # error
         await message.answer("Данные повреждены. Ошибка с определением лица")
