@@ -90,11 +90,6 @@ async def user_registration_webapp_prosessing(message : types.Message):
             await message.answer("Поля не должны быть пустыми")
             return
 
-    # creating user record
-    # saying its type
-    modifyQuery("""INSERT INTO user (tg_id, type) VALUES (%s, (SELECT id FROM usertype WHERE type=%a));""",
-                [message.from_user.id, data["user_type"]], myDatabase)
-
     if data["user_type"] == "phisical":
         # physical is registering
         
@@ -111,15 +106,23 @@ async def user_registration_webapp_prosessing(message : types.Message):
         data["phone_number"] = html.escape(data["phone_number"])
 
         # sending data to database    
-        modifyQuery("""INSERT INTO phys_info(user_id, first_name, last_name, fathers_name,
+        modifyQuery("""/*creating user record and saying its type*/
+                        INSERT INTO user (tg_id, type) VALUES (%s, (SELECT id FROM usertype WHERE type=%s));
+                        /*writing data that are required to current user type*/
+                        INSERT INTO phys_info(user_id, first_name, last_name, fathers_name,
                                                 passport_series, passport_number, address, 
                                                 inn, phone_number)
                                     VALUES ((SELECT id FROM user WHERE tg_id=%s), %s, %s, %s,
                                             %s, %s, %s,
                                             %s, %s);""",
-                        [message.from_user.id, data["first_name"], data["last_name"], data["fathers_name"],
-                         data["passport_series"], data["passport_number"], data["address"],
-                         data["inn"], data["phone_number"]], myDatabase)
+                        [ 
+                            # creating user's instance
+                            message.from_user.id, data["user_type"],
+                            # writing data that are required to current user's type
+                            message.from_user.id, data["first_name"], data["last_name"], data["fathers_name"],
+                            data["passport_series"], data["passport_number"], data["address"],
+                            data["inn"], data["phone_number"]
+                        ], myDatabase)
         
     elif data["user_type"] == "urid":
         # legal is registering
@@ -131,7 +134,10 @@ async def user_registration_webapp_prosessing(message : types.Message):
         data["inn"] = int(data["inn"])
         data["phone_number"] = html.escape(data["phone_number"])
 
-        modifyQuery("""INSERT INTO urid_info(user_id, org_name, ogrn, address, inn, phone_number)
+        modifyQuery("""/*creating user record and saying its type*/
+                        INSERT INTO user (tg_id, type) VALUES (%s, (SELECT id FROM usertype WHERE type=%s));
+                        /*writing data that are required to current user type*/
+                        INSERT INTO urid_info(user_id, name, ogrn, address, inn, phone_number)
                         VALUES ((SELECT id WHERE tg_id=%s), %s, %s, %s, %s, %s);""",
                         [message.from_user.id, data["name"], data["ogrn"], data["address"], data["inn"], data["phone_number"]],
                         myDatabase)
