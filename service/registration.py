@@ -125,7 +125,7 @@ async def user_registration_webapp_prosessing(message : types.Message):
         # legal is registering
 
         # validating data
-        data["org_name"] = html.escape(data["org_name"])
+        data["name"] = html.escape(data["name"])
         data["ogrn"] = int(data["ogrn"])
         data["address"] = html.escape(data["address"])
         data["inn"] = int(data["inn"])
@@ -133,7 +133,7 @@ async def user_registration_webapp_prosessing(message : types.Message):
 
         modifyQuery("""INSERT INTO urid_info(user_id, org_name, ogrn, address, inn, phone_number)
                         VALUES ((SELECT id WHERE tg_id=%s), %s, %s, %s, %s, %s);""",
-                        [message.from_user.id, data["org_name"], data["ogrn"], data["address"], data["inn"], data["phone_number"]],
+                        [message.from_user.id, data["name"], data["ogrn"], data["address"], data["inn"], data["phone_number"]],
                         myDatabase)
     else:
         # error
