@@ -99,7 +99,7 @@ async def user_registration_webapp_prosessing(message : types.Message):
         data["first_name"] = html.escape(data["first_name"])
         data["last_name"] = html.escape(data["last_name"])
         data["fathers_name"] = html.escape(data["fathers_name"])
-        data["passport_series"] = int(data["port_series"])
+        data["passport_series"] = int(data["passport_series"])
         data["passport_number"] = int(data["passport_number"])
         data["address"] = html.escape(data["address"])
         data["inn"] = int(data["inn"])
