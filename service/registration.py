@@ -122,7 +122,7 @@ async def user_registration_webapp_prosessing(message : types.Message):
                             message.from_user.id, data["first_name"], data["last_name"], data["fathers_name"],
                             data["passport_series"], data["passport_number"], data["address"],
                             data["inn"], data["phone_number"]
-                        ], myDatabase)
+                        ], myDatabase, True)
         
     elif data["user_type"] == "urid":
         # legal is registering
@@ -146,7 +146,7 @@ async def user_registration_webapp_prosessing(message : types.Message):
                             message.from_user.id, data["name"], 
                             data["ogrn"], data["address"], 
                             data["inn"], data["phone_number"]
-                        ], myDatabase)
+                        ], myDatabase, True)
     else:
         # error
         await message.answer("Данные повреждены. Ошибка с определением лица")

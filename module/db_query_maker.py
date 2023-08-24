@@ -12,14 +12,15 @@ import datetime
 def selectQuery(SQL_query : str, 
                 query_inserting_values: list, 
                 result_column_names : list[str], 
-                databaseObject):
+                databaseObject,
+                multi_q=False):
     
     if not databaseObject.is_connected():
         # connection corrupted reconnecting
         databaseObject.reconnect(attempts=5, delay=0.5)
 
     curr = databaseObject.cursor()
-    curr.execute(SQL_query, query_inserting_values)
+    curr.execute(SQL_query, query_inserting_values, multi=multi_q)
     dbResp = curr.fetchall()
     curr.close()
 
@@ -52,13 +53,14 @@ def selectQuery(SQL_query : str,
 
 def modifyQuery(SQL_query : str, 
                 query_inserting_values: list,
-                databaseObject):
+                databaseObject,
+                multi_q=False):
     
     if not databaseObject.is_connected():
         # connection corrupted reconnecting
         databaseObject.reconnect(attempts=5, delay=0.5)
         
     curr = databaseObject.cursor()
-    curr.execute(SQL_query, query_inserting_values)
+    curr.execute(SQL_query, query_inserting_values, multi=multi_q)
     databaseObject.commit()
     curr.close()
