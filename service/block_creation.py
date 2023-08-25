@@ -63,6 +63,7 @@ async def create_block_webapp_prosessing(message : types.Message):
     # loading safe data
     # process data using html library
     for i in range(len(data["units"])):
+        data["units"][i]['unit_function'] = html.escape(data["units"][i]['unit_function'])
         data["units"][i]['unit_type'] = html.escape(data["units"][i]['unit_type'])
         data["units"][i]['unit_name'] = html.escape(data["units"][i]['unit_name'])
         data["units"][i]['certificate'] = html.escape(data["units"][i]['certificate'])
@@ -72,7 +73,7 @@ async def create_block_webapp_prosessing(message : types.Message):
         data["units"][i]['service_life'] = int(data["units"][i]['service_life'])
         data["units"][i]['device_status'] = html.escape(data["units"][i]['device_status'])
 
-        if data["units"][i]['unit_type'] == 'storage':
+        if data["units"][i]['unit_function'] == 'storage':
             # battery doesn't generate any power
             data["units"][i]["gen_power"] = None
         else:
@@ -98,7 +99,7 @@ async def create_block_webapp_prosessing(message : types.Message):
 
     def data_to_line(data_array):
         res = []
-        field_order = ["unit_type", "unit_name", "cerficate", 
+        field_order = ["unit_function", "unit_type", "unit_name", "cerficate", 
                         "gen_power", "battery_capacity", 
                         "installation_date", "service_life", 
                         "device_status"]
@@ -111,7 +112,7 @@ async def create_block_webapp_prosessing(message : types.Message):
 
     # loading all units to just created block
     record_template = f"({ ', '.join(['%s' for _ in range(9)]) })"
-    modifyQuery(f"""INSERT INTO equipmentunit(block_id, unit_type, unit_name, cerficate, 
+    modifyQuery(f"""INSERT INTO equipmentunit(block_id, unit_function, unit_type, unit_name, cerficate, 
                             gen_power, battery_capacity, installation_date, 
                             service_life, device_status) VALUES { ', '.join( [record_template for i in range(len(data["units"]))] ) };""",
                     data_to_line(data["units"]),
