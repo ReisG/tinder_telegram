@@ -80,42 +80,37 @@ async def create_block_webapp_prosessing(message : types.Message):
             # nonbatery cannot store energy
             data["units"][i]['battery_capacity'] = None
 
-    # storing data in database
-    # !!! THIS INSERT STATEMENTS MUST BE IN ONE SQL QUERRY
-    # THIS WAY IT WOULD BE MORE SECURE
-    # creating equipment block
-    modifyQuery("""INSERT INTO equipmentblock (user_id) VALUE (SELECT id FROM user WHERE tg_id=%s);""",
-                    [message.from_user.id], myDatabase)
-    
-    # getting last_insert_id
-    # WARNING (rase condition found)
-    # when users send requests at same time wrong block can be chosen
-    # it would be better to union this request with inserting
-    # but it makes system less secure
-    resp = selectQuery("""SELECT LAST_INSERT_ID() FROM equipmentblock;""", 
-                            [], ["block_id"], myDatabase)
-    resp["block_id"] = int(resp["block_id"])
 
-
-    def data_to_line(data_array):
-        res = []
-        field_order = ["unit_function", "unit_type", "unit_name", "cerficate", 
+    # moving all data from several arrays in one line
+    field_order = ["unit_function", "unit_type", "unit_name", "cerficate", 
                         "gen_power", "battery_capacity", 
                         "installation_date", "service_life", 
                         "device_status"]
+    def data_to_line(data_array):
+        res = []
         for record in data_array:
-            res.append(resp["block_id"])
             for field in field_order:
                 res.append(record[field])
         return res
 
-
-    # loading all units to just created block
-    record_template = f"({ ', '.join(['%s' for _ in range(9)]) })"
-    modifyQuery(f"""INSERT INTO equipmentunit(block_id, unit_function, unit_type, unit_name, cerficate, 
+    # Thing that we add to store one line in database
+    record_template = f"({ ', '.join(['@bl_id'] + ['%s' for _ in range(len(field_order))]) })"
+    
+    # sending data in database all in one query
+    modifyQuery(f"""/* Creating energy block */
+                    INSERT INTO equipmentblock (user_id) VALUE (SELECT id FROM user WHERE tg_id=%s);
+                    /* getting just created block id */
+                    SELECT @bl_id := LAST_INSERT_ID() FROM equipmentblock;
+                    /* inserting block units */
+                    INSERT INTO equipmentunit(block_id, unit_function, unit_type, unit_name, cerficate, 
                             gen_power, battery_capacity, installation_date, 
                             service_life, device_status) VALUES { ', '.join( [record_template for i in range(len(data["units"]))] ) };""",
-                    data_to_line(data["units"]),
-                    myDatabase)
+                    [
+                        # creating block
+                        message.from_user.id,
+                        # inserting block units
+                        data_to_line(data["units"])
+                    ],
+                    myDatabase, True)
     
     await message.answer("Данные энергитического блока записаны")
