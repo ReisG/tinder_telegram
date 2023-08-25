@@ -1,3 +1,4 @@
 __all__ = [
-    "registation"
+    "help",
+    "registration",
 ]
