@@ -52,13 +52,17 @@ def selectQuery(SQL_query : str,
 
 def modifyQuery(SQL_query : str, 
                 query_inserting_values: list,
-                databaseObject):
+                databaseObject,
+                multi_q=False):
     
     if not databaseObject.is_connected():
         # connection corrupted reconnecting
         databaseObject.reconnect(attempts=5, delay=0.5)
         
     curr = databaseObject.cursor()
-    curr.execute(SQL_query, query_inserting_values)
+    queries = curr.execute(SQL_query, query_inserting_values, multi=multi_q)
+    if multi_q:
+        for _ in queries:
+            pass
     databaseObject.commit()
     curr.close()
