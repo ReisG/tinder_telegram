@@ -60,6 +60,10 @@ async def create_block_webapp_prosessing(message : types.Message):
 
     data = json.loads(message.web_app_data.data)
 
+    # IGNORING DATA PROSSESING
+    await message.answer("Данные получены")
+    return
+
     # loading safe data
     # process data using html library
     for i in range(len(data["units"])):
