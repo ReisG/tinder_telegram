@@ -21,5 +21,6 @@ async def help_command(message : types.Message):
     instractions = """Команды:
         /register - зарегистрироваться
         /createblock - создать энергитический блок
+        /getplan - показать план потребления/производства
         /cancel - отменить выполняемое действие"""
     await message.answer(instractions)
