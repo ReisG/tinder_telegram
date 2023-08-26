@@ -60,10 +60,12 @@ async def create_block_webapp_prosessing(message : types.Message):
 
     data = json.loads(message.web_app_data.data)
 
+    # print(data)
+
     # loading safe data
     # process data using html library
     for i in range(len(data["units"])):
-        data["units"][i]['unit_function'] = html.escape(data["units"][i]['unit_function'])
+        data["units"][i]['unit_f'] = html.escape(data["units"][i]['unit_f'])
         data["units"][i]['unit_type'] = html.escape(data["units"][i]['unit_type'])
         data["units"][i]['unit_name'] = html.escape(data["units"][i]['unit_name'])
         data["units"][i]['certificate'] = html.escape(data["units"][i]['certificate'])
@@ -73,7 +75,7 @@ async def create_block_webapp_prosessing(message : types.Message):
         data["units"][i]['service_life'] = int(data["units"][i]['service_life'])
         data["units"][i]['device_status'] = html.escape(data["units"][i]['device_status'])
 
-        if data["units"][i]['unit_function'] == 'storage':
+        if data["units"][i]['unit_f'] == 'storage':
             # battery doesn't generate any power
             data["units"][i]["gen_power"] = None
         else:
@@ -82,7 +84,7 @@ async def create_block_webapp_prosessing(message : types.Message):
 
 
     # moving all data from several arrays in one line
-    field_order = ["unit_function", "unit_type", "unit_name", "cerficate", 
+    field_order = ["unit_f", "unit_type", "unit_name", "certificate", 
                         "gen_power", "battery_capacity", 
                         "installation_date", "service_life", 
                         "device_status"]
@@ -91,25 +93,26 @@ async def create_block_webapp_prosessing(message : types.Message):
         for record in data_array:
             for field in field_order:
                 res.append(record[field])
+        print(res)
         return res
 
     # Thing that we add to store one line in database
     record_template = f"({ ', '.join(['@bl_id'] + ['%s' for _ in range(len(field_order))]) })"
     
     # sending data in database all in one query
-    modifyQuery(f"""/* Creating energy block */
-                    INSERT INTO equipmentblock (user_id) VALUE (SELECT id FROM user WHERE tg_id=%s);
+    modifyQuery("""/* Creating energy block */
+                    INSERT INTO equipmentblock (user_id) VALUES ((SELECT id FROM user WHERE tg_id=%s));
                     /* getting just created block id */
                     SELECT @bl_id := LAST_INSERT_ID() FROM equipmentblock;
                     /* inserting block units */
-                    INSERT INTO equipmentunit(block_id, unit_function, unit_type, unit_name, cerficate, 
+                    INSERT INTO equipmentunit(block_id, unit_function, unit_type, unit_name, certificate, 
                             gen_power, battery_capacity, installation_date, 
-                            service_life, device_status) VALUES { ', '.join( [record_template for i in range(len(data["units"]))] ) };""",
+                            service_life, device_status) VALUES """ + ', '.join( [record_template for i in range(len(data["units"]))] ) + ";",
                     [
                         # creating block
                         message.from_user.id,
                         # inserting block units
-                        data_to_line(data["units"])
+                        *data_to_line(data["units"])
                     ],
                     myDatabase, True)
     
