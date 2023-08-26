@@ -22,7 +22,7 @@ import urllib.parse
 
 
 @dp.message_handler(commands=["createblock"])
-# @user_must_register(myDatabase)
+@user_must_register(myDatabase)
 async def create_block_command(message : types.Message):
     """
         Block used to create new block of devices
@@ -40,7 +40,7 @@ async def create_block_command(message : types.Message):
 
 @dp.message_handler(lambda message: json.loads(message.web_app_data.data)["web_app_name"] == "block_creation", 
                     content_types=types.ContentType.WEB_APP_DATA)
-# @user_must_register(myDatabase)
+@user_must_register(myDatabase)
 async def create_block_webapp_prosessing(message : types.Message):
     """
         Module that creates energy block
